@@ -1,6 +1,6 @@
 package com.example.robotremotecontrol.MainActivity
 
-import com.example.robotremotecontrol.PROTOActivity.goToPROTOActivity
+import com.example.robotremotecontrol.PROTODirectControlActivity.goToPROTOActivity
 
 import com.example.robotremotecontrol.R
 
@@ -9,10 +9,8 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -21,15 +19,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-
 private const val Filename = "RobotCards.kt"
 
 // Step 1, make a model for the card
 class RobotInformation(
-    var name: String = "",
-    var drawableID: Int = 0,
-    var nextActivity: (Context) -> Unit // a function that takes Context and returns nothing
+    val name: String,
+    val drawableID: Int,
+    // We take a list, containing pairs, made of a name and a function
+    val options: List<Pair<(Context) -> Unit, String>>
 )
+{
+
+}
 
 // Step 2, make a function that finds all the needed data,
 // turns it into models, and returns a list of them
@@ -39,19 +40,28 @@ fun loadRobotInformation(): List<RobotInformation>
     val proto = RobotInformation(
         "PROTO",
         R.drawable.proto,
-        ::goToPROTOActivity
+        listOf(
+            Pair(::goToPROTOActivity,"SSR Calibration Action"),
+            Pair(::goToPROTOActivity,"Direct Control")
+        )
     )
 
     val dummyRobot1 = RobotInformation(
         "Dummy Robot 1",
         R.drawable.dummy_robot_1,
-        ::goToMainActivity
+        listOf(
+            Pair(::goToMainActivity, "Dummy Option 1"),
+            Pair(::goToMainActivity, "Dummy Option 2")
+        )
     )
 
     val dummyRobot2 = RobotInformation(
         "Dummy Robot 2",
         R.drawable.dummy_robot_2,
-        ::goToMainActivity
+        listOf(
+            Pair(::goToMainActivity, "Dummy Option 1"),
+            Pair(::goToMainActivity, "Dummy Option 2")
+        )
     )
 
     return listOf(proto, dummyRobot1, dummyRobot2)
@@ -62,17 +72,21 @@ fun loadRobotInformation(): List<RobotInformation>
 fun RobotCard(robotInformation: RobotInformation)
 {
     val mContext = LocalContext.current
+    var isDisplayMenuShown by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable
             {
-                robotInformation.nextActivity(mContext)
+                isDisplayMenuShown = !isDisplayMenuShown // Show or remove menu
 
                 if (ISDEBUG) {
-                    currentLine = Throwable().stackTrace[0].lineNumber-1
-                    Log.v("From $Filename, line $currentLine", "The ${robotInformation.name} card was clicked!")
+                    currentLine = Throwable().stackTrace[0].lineNumber - 1
+                    Log.v(
+                        "From $Filename, line $currentLine",
+                        "The ${robotInformation.name} card was clicked!"
+                    )
                 }
             }
     )
@@ -94,6 +108,21 @@ fun RobotCard(robotInformation: RobotInformation)
                     .align(Alignment.CenterVertically)
                     .padding(12.dp)
             )
+
+            DropdownMenu(
+                expanded = isDisplayMenuShown,
+                onDismissRequest = { isDisplayMenuShown = false }
+            )
+            {
+                robotInformation.options.forEach{
+                    // Creating dropdown menu item
+                    DropdownMenuItem(
+                        onClick = { it.first.invoke(mContext) }
+                    ) {
+                        Text(text = it.second)
+                    }
+                }
+            }
         }
     }
 }
@@ -108,7 +137,10 @@ fun RobotCardPreview()
     val proto = RobotInformation(
         "PROTO",
         R.drawable.proto,
-        ::goToPROTOActivity
+        listOf(
+            Pair(::goToPROTOActivity,"SSR Calibration Action"),
+            Pair(::goToPROTOActivity,"Direct Control")
+        )
     )
 
     // Call function we want to preview

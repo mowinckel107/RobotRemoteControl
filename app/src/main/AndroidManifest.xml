@@ -27,7 +27,7 @@
         </activity>
 
         <activity
-            android:name=".PROTOActivity.PROTOActivity"
+            android:name=".PROTODirectControlActivity.PROTODirectControlActivity"
             android:exported="true"
             android:theme="@style/Theme.RobotRemoteControl">
         </activity>
