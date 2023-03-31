@@ -13,6 +13,8 @@ import androidx.compose.material.Button
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,10 +24,11 @@ import androidx.compose.ui.unit.em
 import com.example.robotremotecontrol.MainActivity.ISDEBUG
 import com.example.robotremotecontrol.MainActivity.goToMainActivity
 import com.example.robotremotecontrol.ui.theme.RobotRemoteControlTheme
+import kotlinx.coroutines.launch
+
 
 // Variable to enable meaningful debug tags
 private const val Filename = "PROTOActivity.kt"
-
 
 
 class PROTODirectControlActivity : ComponentActivity() {
@@ -48,19 +51,7 @@ class PROTODirectControlActivity : ComponentActivity() {
                 )
             }
         }
-
-        // Main is destroyed, and we want the user to return to main.
-        // So we change what the back button does in order to not quit out of the App
-        val callback = onBackPressedDispatcher.addCallback(this)
-        {
-            val activity : Activity? = (context as? Activity)
-            goToMainActivity(context)
-            activity?.finish()
-        }
-        callback.isEnabled
     }
-
-
 
     override fun onDestroy() {
         super.onDestroy()
@@ -139,6 +130,8 @@ fun goToPROTOActivity(theContext : Context)
 @Composable
 private fun TopLevelComposable()
 {
+    val httpClient = PROTOService()
+
     RobotRemoteControlTheme( darkTheme = true)
     {
         Surface(modifier = Modifier.fillMaxSize())
@@ -147,25 +140,35 @@ private fun TopLevelComposable()
             {
                 PROTOHeadline()
                 ReturnToMainButton()
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(40.dp))
 
-                ForwardButton()
+                ForwardButton(httpClient)
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(30.dp))
 
                 Row( )
                 {
-                    LeftButton()
+                    LeftButton(httpClient)
 
-                    Spacer(modifier = Modifier.width(130.dp))
+                    Spacer(modifier = Modifier.width(50.dp))
 
-                    RightButton()
+                    MiddleButton(httpClient)
+
+                    Spacer(modifier = Modifier.width(50.dp))
+
+                    RightButton(httpClient)
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(30.dp))
 
-                BackwardButton()
+                BackwardButton(httpClient)
             }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            httpClient.close()
         }
     }
 }
@@ -179,7 +182,7 @@ fun PROTOHeadline()
         modifier = Modifier
                 .padding(30.dp,5.dp),
         fontSize = 7.em,
-        )
+    )
 }
 
 @Composable
@@ -192,8 +195,7 @@ fun ReturnToMainButton()
         onClick = {
             // Calling explicitly, since Main is likely to be destroyed, and the intention is not
             // For this action to quit the app
-            goToMainActivity(context)
-            activity?.finish() },
+            goToMainActivity(context) },
 
         modifier = Modifier.padding(5.dp)
     )
@@ -203,9 +205,17 @@ fun ReturnToMainButton()
 }
 
 @Composable
-fun ForwardButton() {
+fun ForwardButton(httpClient : PROTOServiceInterface) {
+
+    val coroutineScope = rememberCoroutineScope()
+
     Button(
-        onClick = { /*TODO*/ },
+
+        onClick = {
+            coroutineScope.launch {
+                httpClient.sendTwist(PROTOTwist(0.5,0.0,0.0,0.0,0.0,0.0))
+            }
+        },
         modifier = Modifier.padding(5.dp)
     )
     {
@@ -214,10 +224,16 @@ fun ForwardButton() {
 }
 
 @Composable
-fun BackwardButton() {
+fun BackwardButton(httpClient : PROTOServiceInterface) {
+
+    val coroutineScope = rememberCoroutineScope()
 
     Button(
-        onClick = { /*TODO*/ },
+        onClick = {
+            coroutineScope.launch {
+                httpClient.sendTwist(PROTOTwist(-0.5,0.0,0.0,0.0,0.0,0.0))
+            }
+        },
         modifier = Modifier.padding(5.dp)
     )
     {
@@ -226,10 +242,16 @@ fun BackwardButton() {
 }
 
 @Composable
-fun LeftButton() {
+fun LeftButton(httpClient : PROTOServiceInterface) {
+
+    val coroutineScope = rememberCoroutineScope()
 
     Button(
-        onClick = { /*TODO*/ },
+        onClick = {
+            coroutineScope.launch {
+                httpClient.sendTwist(PROTOTwist(0.0,0.0,0.0,0.0,0.0,0.5))
+            }
+        },
         modifier = Modifier.padding(5.dp)
     )
     {
@@ -238,10 +260,16 @@ fun LeftButton() {
 }
 
 @Composable
-fun RightButton() {
+fun RightButton(httpClient : PROTOServiceInterface) {
+
+    val coroutineScope = rememberCoroutineScope()
 
     Button(
-        onClick = { /*TODO*/ },
+        onClick = {
+            coroutineScope.launch {
+                httpClient.sendTwist(PROTOTwist(0.0,0.0,0.0,0.0,0.0,-0.5))
+            }
+        },
         modifier = Modifier.padding(5.dp)
     )
     {
@@ -249,3 +277,21 @@ fun RightButton() {
     }
 }
 
+@Composable
+fun MiddleButton(httpClient : PROTOServiceInterface) {
+
+    val coroutineScope = rememberCoroutineScope()
+
+    Button(
+        onClick = {
+            coroutineScope.launch {
+                httpClient.sendTwist(PROTOTwist(0.0,0.0,0.0,0.0,0.0,0.0))
+            }
+
+        },
+        modifier = Modifier.padding(5.dp)
+    )
+    {
+        Text(text = "Stop")
+    }
+}

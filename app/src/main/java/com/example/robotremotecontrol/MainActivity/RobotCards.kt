@@ -82,7 +82,6 @@ fun loadRobotInformation(): List<RobotInformation>
 fun RobotCard(robotInformation: RobotInformation)
 {
     val context = LocalContext.current
-    val activity = (context as? Activity)
 
     // We create a state of the composable by using the remember function:
     var isDisplayMenuShown by remember { mutableStateOf(false) }
@@ -138,10 +137,6 @@ fun RobotCard(robotInformation: RobotInformation)
                     DropdownMenuItem(
                         onClick = {
                             it.goToActivityFunction.invoke(context)
-                            // We destroy MainActivity, since the way the app is intended to work
-                            // means users will rarely go back to it. Nor does it take much to
-                            // re-create if they do.
-                            activity?.finish()
                         }
                     ) {
                         Text(text = it.nameOfActivity)

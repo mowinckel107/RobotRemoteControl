@@ -138,6 +138,13 @@ fun goToMainActivity(theContext : Context)
 private fun TopLevelComposable()
 {
 
+    if (ISDEBUG) {
+        Log.v(
+            Filename,
+            "\n\n\n"
+        )
+    }
+
     RobotRemoteControlTheme( darkTheme = true)
     {
         Surface(modifier = Modifier.fillMaxSize())
