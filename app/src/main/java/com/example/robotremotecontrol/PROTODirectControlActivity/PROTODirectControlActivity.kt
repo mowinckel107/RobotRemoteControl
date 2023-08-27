@@ -40,13 +40,6 @@ class PROTODirectControlActivity : ComponentActivity() {
             TopLevelComposable()
 
             context = LocalContext.current
-
-            if (ISDEBUG) {
-                Log.v(
-                    Filename,
-                    "---------- onCreate called on PROTODirectControlActivity"
-                )
-            }
         }
 
         // Main is destroyed, and we want the user to return to main.
@@ -58,74 +51,6 @@ class PROTODirectControlActivity : ComponentActivity() {
             activity?.finish()
         }
         callback.isEnabled
-    }
-
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        if (ISDEBUG) {
-            Log.v(
-                Filename,
-                "---------- onDestroy called on PROTODirectControlActivity"
-            )
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        if (ISDEBUG) {
-            Log.v(
-                Filename,
-                "---------- onStart called on PROTODirectControlActivity"
-            )
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        if (ISDEBUG) {
-            Log.v(
-                Filename,
-                "---------- onStop called on PROTODirectControlActivity"
-            )
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        if (ISDEBUG) {
-            Log.v(
-                Filename,
-                "---------- onResume called on PROTODirectControlActivity"
-            )
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        if (ISDEBUG) {
-            Log.v(
-                Filename,
-                "---------- onPause called on PROTODirectControlActivity"
-            )
-        }
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-
-        if (ISDEBUG) {
-            Log.v(
-                Filename,
-                "---------- onRestart called on PROTODirectControlActivity"
-            )
-        }
     }
 }
 
